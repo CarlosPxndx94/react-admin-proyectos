@@ -9,9 +9,9 @@ const ListadoProyectos = () => {
 
     useEffect(() => {
         handleObtenerProyectos();
-    }, [handleObtenerProyectos]);
+    }, []);
 
-    if (proyectos.length === 0) return null;
+    if (proyectos.length === 0) return <p>{`No hay proyectos!!!, Comienza creando uno ;)`}</p>;
 
     return (
         <ul className="listado-proyectos">

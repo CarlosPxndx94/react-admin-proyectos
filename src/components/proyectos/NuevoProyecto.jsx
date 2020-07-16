@@ -5,7 +5,13 @@ const NuevoProyecto = () => {
 
     const proyectosContext = useContext(ProyectoContext);
 
-    const { formulario, handleMostrarFormulario } = proyectosContext;
+    const {
+        formulario,
+        errorFormulario,
+        handleErrorFormulario,
+        handleMostrarFormulario,
+        handleAgregarProyecto
+    } = proyectosContext;
 
     const [proyecto, setProyecto] = useState({
         nombre: ''
@@ -23,6 +29,20 @@ const NuevoProyecto = () => {
     const handleProyecto = e => {
         e.preventDefault();
 
+        if (nombre === '') {
+            handleErrorFormulario();
+            return;
+        }
+
+        handleAgregarProyecto(proyecto);
+
+        setProyecto({
+            nombre: ''
+        });
+    }
+
+    // Mostrar el formulario
+    const onClickNuevoProyecto = () => {
         handleMostrarFormulario();
     }
 
@@ -31,12 +51,13 @@ const NuevoProyecto = () => {
             <button
                 type="button"
                 className="btn btn-block btn-primario"
-                onClick={handleProyecto}
+                onClick={onClickNuevoProyecto}
             >Nuevo Proyecto</button>
 
             {formulario ?
                 (<form
                     className="formulario-nuevo-proyecto"
+                    onSubmit={handleProyecto}
                 >
 
                     <input
@@ -58,7 +79,8 @@ const NuevoProyecto = () => {
                 :
                 null}
 
-        </Fragment>
+            {errorFormulario ? (<p className="mensaje error">El nombre es oblligatorio</p>) : null}
+        </Fragment >
 
     );
 }

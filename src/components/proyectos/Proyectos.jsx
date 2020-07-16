@@ -15,7 +15,7 @@ const Proyectos = () => {
 
                     <FormTarea />
 
-                    <div className="contendor-tareas">
+                    <div className="contenedor-tareas">
                         <ListadoTareas />
                     </div>
                 </main>
