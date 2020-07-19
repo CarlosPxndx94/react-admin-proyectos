@@ -1,24 +1,22 @@
 import React, { Fragment, useContext } from 'react';
 import Tarea from './Tarea';
-import ProyectoContext from '../../context/proyectos/ProyectoContext'
+import ProyectoContext from '../../context/proyectos/ProyectoContext';
+import TareaContext from '../../context/tareas/TareaContext';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 const ListadoTareas = () => {
 
+    //proyecto context
     const proyectosContext = useContext(ProyectoContext);
     const { proyectoActual, handleEliminarProyecto } = proyectosContext;
 
+    //tareas context
+    const tareasContext = useContext(TareaContext);
+    const { tareasProyecto } = tareasContext;
+
     if (!proyectoActual) return <h2>Selecciona un proyecto</h2>;
 
-    const { id, nombre } = proyectoActual;
-
-    const tareasProyecto = [
-        { id: 1, nombre: 'Elegir Plataforma', estado: true },
-        { id: 2, nombre: 'Elegir algo', estado: false },
-        { id: 3, nombre: 'Elegir color', estado: false },
-        { id: 4, nombre: 'Elegir lenguaje', estado: true }
-    ];
-
-
+    const { nombre } = proyectoActual;
 
     return (
         <Fragment>
@@ -34,14 +32,21 @@ const ListadoTareas = () => {
                         </li>
                     )
                     :
-
-                    tareasProyecto.map(tarea => (
-                        <Tarea
-                            key={tarea.id}
-                            tarea={tarea}
-                        />
-                    ))
-
+                    <TransitionGroup>
+                        {
+                            tareasProyecto.map(tarea => (
+                                <CSSTransition
+                                    key={tarea.id}
+                                    timeout={200}
+                                    classNames="tarea"
+                                >
+                                    <Tarea
+                                        tarea={tarea}
+                                    />
+                                </CSSTransition>
+                            ))
+                        }
+                    </TransitionGroup>
                 }
             </ul>
 
