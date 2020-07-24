@@ -1,7 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import AlertasContext from '../../context/alertas/AlertasContext';
+import AuthContext from '../../context/autenticacion/AuthContext';
 
-const NuevaCuenta = () => {
+const NuevaCuenta = (props) => {
+
+    //Constex alertas
+    const alertasContext = useContext(AlertasContext);
+    const { alerta, handleMostrarAlerta } = alertasContext;
+
+    //Context Auth
+    const authContext = useContext(AuthContext);
+    const { autenticado, mensaje, handleRegistrarUser } = authContext;
+
+    //Escuchar los diferentes estados despues de dar click en el boton registrar
+    useEffect(() => {
+
+        if (autenticado) {
+            props.history.push('/proyectos');
+        }
+
+        if (mensaje) {
+            const { msg, categoria } = mensaje;
+            handleMostrarAlerta(msg, categoria);
+        }
+    }, [mensaje, autenticado, props.history]);
 
     const [login, setLogin] = useState({
         nombre: '',
@@ -21,10 +44,44 @@ const NuevaCuenta = () => {
 
     const handleForm = e => {
         e.preventDefault();
+
+        //Validar campos vacios
+        if (nombre.trim() === '' ||
+            email.trim() === '' ||
+            password.trim() === '' ||
+            repeatpassword.trim() === '') {
+            handleMostrarAlerta('Todos los campos son obligatorios', 'alerta-error');
+            return;
+        }
+
+        if (password.length < 6) {
+            handleMostrarAlerta('La constraseña debe ser minimo de 6 caracteres', 'alerta-error');
+            return;
+        }
+
+        if (password !== repeatpassword) {
+            handleMostrarAlerta('Las constraseñas deben ser iguales', 'alerta-error');
+            return;
+        }
+
+        //Enviar al servicio
+        handleRegistrarUser({
+            nombre,
+            email,
+            password
+        });
     };
 
     return (
         <div className="form-usuario">
+            {alerta
+                ?
+                <div
+                    className={`alerta ${alerta.categoria}`}
+                >{alerta.msg}</div>
+                :
+                null
+            }
             <div className="contenedor-form sombra-dark">
                 <h1>
                     Crear una cuenta
@@ -76,7 +133,7 @@ const NuevaCuenta = () => {
                             type="password"
                             id="repeatpassword"
                             name="repeatpassword"
-                            placeholder="Repite yu Password"
+                            placeholder="Repite tu Password"
                             value={repeatpassword}
                             onChange={handleLogin}
                         />

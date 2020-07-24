@@ -1,7 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import AlertasContext from '../../context/alertas/AlertasContext';
+import AuthContext from '../../context/autenticacion/AuthContext';
 
-const Login = () => {
+const Login = (props) => {
+
+    //Constex alertas
+    const alertasContext = useContext(AlertasContext);
+    const { alerta, handleMostrarAlerta } = alertasContext;
+
+    //Context Auth
+    const authContext = useContext(AuthContext);
+    const { autenticado, mensaje, handleLogin } = authContext;
+
+    //Escuchar los diferentes estados despues de dar click en el boton login
+    useEffect(() => {
+        if (autenticado) {
+            props.history.push('/proyectos');
+        }
+
+        if (mensaje) {
+            const { msg, categoria } = mensaje;
+            handleMostrarAlerta(msg, categoria);
+        }
+    }, [mensaje, autenticado, props.history]);
 
     const [login, setLogin] = useState({
         email: '',
@@ -10,7 +32,7 @@ const Login = () => {
 
     const { email, password } = login;
 
-    const handleLogin = e => {
+    const handleChangeLogin = e => {
         setLogin({
             ...login,
             [e.target.name]: e.target.value
@@ -19,10 +41,26 @@ const Login = () => {
 
     const handleForm = e => {
         e.preventDefault();
+
+        if (email.trim() === '' ||
+            password.trim === '') {
+            handleMostrarAlerta('Todos los campos son obligatorios', 'alerta-error');
+            return;
+        }
+
+        handleLogin({ email, password });
     };
 
     return (
         <div className="form-usuario">
+            {alerta
+                ?
+                <div
+                    className={`alerta ${alerta.categoria}`}
+                >{alerta.msg}</div>
+                :
+                null
+            }
             <div className="contenedor-form sombra-dark">
                 <h1>
                     Inicia Sesión
@@ -39,7 +77,7 @@ const Login = () => {
                             name="email"
                             placeholder="Tu E-mail"
                             value={email}
-                            onChange={handleLogin}
+                            onChange={handleChangeLogin}
                         />
                     </div>
 
@@ -51,7 +89,7 @@ const Login = () => {
                             name="password"
                             placeholder="Tu Password"
                             value={password}
-                            onChange={handleLogin}
+                            onChange={handleChangeLogin}
                         />
                     </div>
 
