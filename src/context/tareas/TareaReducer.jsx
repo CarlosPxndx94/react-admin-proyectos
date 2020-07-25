@@ -2,7 +2,7 @@ import {
     GET_TAREAS_PROYECTO,
     ERROR_TAREA,
     NUEVA_TAREA_PROYECTO,
-    ELIMINAR_TAREA_PROYECTO,    
+    ELIMINAR_TAREA_PROYECTO,
     TAREA_PROYECTO_ACTUAL,
     ACTUALIZAR_TAREA_PROYECTO
 } from '../../types';
@@ -16,7 +16,8 @@ export default (state, action) => {
             }
         case NUEVA_TAREA_PROYECTO:
             return {
-                ...state,                
+                ...state,
+                tareasProyecto: [action.payload, ...state.tareasProyecto],
                 errorTarea: false
             }
         case ERROR_TAREA:
@@ -28,8 +29,8 @@ export default (state, action) => {
             return {
                 ...state,
                 tareasProyecto: state.tareasProyecto.filter(tarea => tarea._id !== action.payload)
-            }        
-        case ACTUALIZAR_TAREA_PROYECTO:            
+            }
+        case ACTUALIZAR_TAREA_PROYECTO:
             return {
                 ...state,
                 tareasProyecto: state.tareasProyecto.map(tarea => tarea.id === action.payload.id ? action.payload : tarea),
