@@ -35,7 +35,7 @@ const FormTarea = () => {
 
     if (!proyectoActual) return null;
 
-    const { id } = proyectoActual;
+    const { _id } = proyectoActual;
 
     const handleChange = e => {
         setTarea({
@@ -53,14 +53,13 @@ const FormTarea = () => {
         }
 
         if (tareaActual === null) {
-            tarea.proyecto_id = id;
-            tarea.estado = false;
+            tarea.proyecto = _id;            
             handleNuevaTarea(tarea);
         } else {
             handleActualizarTarea(tarea);
         }
 
-        handleGetTareas(id);
+        handleGetTareas(_id);
 
         setTarea({
             nombre: ''

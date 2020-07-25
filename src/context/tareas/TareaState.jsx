@@ -1,43 +1,50 @@
 import React, { useReducer } from 'react';
 import TareaContext from './TareaContext';
 import TareaReducer from './TareaReducer';
-import { v4 } from 'uuid';
+import clienteAxios from '../../config/axios';
 
 import {
     GET_TAREAS_PROYECTO,
     NUEVA_TAREA_PROYECTO,
     ERROR_TAREA,
-    ELIMINAR_TAREA_PROYECTO,
-    ESTADO_TAREA_PROYECTO,
+    ELIMINAR_TAREA_PROYECTO,    
     TAREA_PROYECTO_ACTUAL,
-    ACTUALIZAR_TAREA_PROYECTO
+    ACTUALIZAR_TAREA_PROYECTO,
+    TAREA_ERROR
 } from '../../types';
 
 const TareaState = props => {
 
     const initialState = {
-        tareas: [
-            { id: 1, nombre: 'Elegir Plataforma', estado: true, proyecto_id: 1 },
-            { id: 2, nombre: 'Elegir algo', estado: false, proyecto_id: 2 },
-            { id: 3, nombre: 'Elegir color', estado: false, proyecto_id: 3 },
-            { id: 4, nombre: 'Elegir lenguaje', estado: true, proyecto_id: 4 },
-            { id: 5, nombre: 'Elegir Plataforma 2', estado: true, proyecto_id: 4 },
-            { id: 6, nombre: 'Elegir algo 2', estado: false, proyecto_id: 3 },
-            { id: 7, nombre: 'Elegir color 2', estado: false, proyecto_id: 2 },
-            { id: 8, nombre: 'Elegir lenguaje 2', estado: true, proyecto_id: 1 }
-        ],
-        tareasProyecto: null,
+        tareasProyecto: [],
         errorTarea: false,
-        tareaActual: null
+        tareaActual: null,
+        mensaje: null
     }
 
     const [state, dispatch] = useReducer(TareaReducer, initialState);
 
-    const handleGetTareas = proyecto_id => {
-        dispatch({
-            type: GET_TAREAS_PROYECTO,
-            payload: proyecto_id
-        });
+    const handleGetTareas = async proyecto => {
+
+        try {
+            const resultado = await clienteAxios.get('api/tareas', { params: { proyecto } });
+
+            dispatch({
+                type: GET_TAREAS_PROYECTO,
+                payload: resultado.data.tareas
+            });
+        } catch (error) {
+            console.log(error.response);
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: TAREA_ERROR,
+                payload: alerta
+            });
+        }
     }
 
     const handleErrorTarea = () => {
@@ -46,26 +53,55 @@ const TareaState = props => {
         });
     }
 
-    const handleNuevaTarea = tarea => {
-        tarea.id = v4();
-        dispatch({
-            type: NUEVA_TAREA_PROYECTO,
-            payload: tarea
-        });
+    const handleNuevaTarea = async tarea => {
+
+        try {
+            const resultado = await clienteAxios.post('api/tareas', tarea);
+
+            dispatch({
+                type: NUEVA_TAREA_PROYECTO,
+                payload: resultado.data.tarea
+            });
+
+        } catch (error) {
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: TAREA_ERROR,
+                payload: alerta
+            });
+        }
     }
 
-    const handleEliminarTarea = tarea_id => {
-        dispatch({
-            type: ELIMINAR_TAREA_PROYECTO,
-            payload: tarea_id
-        });
-    }
+    const handleEliminarTarea = async (id, proyecto) => {
 
-    const handleEstadoTarea = tarea => {
-        dispatch({
-            type: ESTADO_TAREA_PROYECTO,
-            payload: tarea
-        });
+        try {
+            await clienteAxios.delete('api/tareas', {
+                params: {
+                    id,
+                    proyecto
+                }
+            });
+
+            dispatch({
+                type: ELIMINAR_TAREA_PROYECTO,
+                payload: id
+            });
+
+        } catch (error) {
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: TAREA_ERROR,
+                payload: alerta
+            });
+        }
     }
 
     const handleSetTareaActual = tarea => {
@@ -75,17 +111,32 @@ const TareaState = props => {
         });
     }
 
-    const handleActualizarTarea = tarea => {
-        dispatch({
-            type: ACTUALIZAR_TAREA_PROYECTO,
-            payload: tarea
-        });
+    const handleActualizarTarea = async tarea => {
+
+        try {
+            const resultado = await clienteAxios.put('api/tareas', tarea);
+            
+            dispatch({
+                type: ACTUALIZAR_TAREA_PROYECTO,
+                payload: resultado.data.tarea
+            });
+
+        } catch (error) {
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: TAREA_ERROR,
+                payload: alerta
+            });
+        }
     }
 
     return (
         <TareaContext.Provider
             value={{
-                tareas: state.tareas,
                 tareasProyecto: state.tareasProyecto,
                 errorTarea: state.errorTarea,
                 tareaActual: state.tareaActual,
@@ -93,7 +144,6 @@ const TareaState = props => {
                 handleErrorTarea,
                 handleNuevaTarea,
                 handleEliminarTarea,
-                handleEstadoTarea,
                 handleSetTareaActual,
                 handleActualizarTarea
             }}

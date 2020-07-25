@@ -2,8 +2,7 @@ import {
     GET_TAREAS_PROYECTO,
     ERROR_TAREA,
     NUEVA_TAREA_PROYECTO,
-    ELIMINAR_TAREA_PROYECTO,
-    ESTADO_TAREA_PROYECTO,
+    ELIMINAR_TAREA_PROYECTO,    
     TAREA_PROYECTO_ACTUAL,
     ACTUALIZAR_TAREA_PROYECTO
 } from '../../types';
@@ -13,12 +12,11 @@ export default (state, action) => {
         case GET_TAREAS_PROYECTO:
             return {
                 ...state,
-                tareasProyecto: state.tareas.filter(tarea => tarea.proyecto_id === action.payload)
+                tareasProyecto: action.payload
             }
         case NUEVA_TAREA_PROYECTO:
             return {
-                ...state,
-                tareas: [action.payload, ...state.tareas],
+                ...state,                
                 errorTarea: false
             }
         case ERROR_TAREA:
@@ -29,14 +27,12 @@ export default (state, action) => {
         case ELIMINAR_TAREA_PROYECTO:
             return {
                 ...state,
-                tareas: state.tareas.filter(tarea => tarea.id !== action.payload)
-            }
-        case ESTADO_TAREA_PROYECTO:
-        case ACTUALIZAR_TAREA_PROYECTO:
-            console.log(action.payload);
+                tareasProyecto: state.tareasProyecto.filter(tarea => tarea._id !== action.payload)
+            }        
+        case ACTUALIZAR_TAREA_PROYECTO:            
             return {
                 ...state,
-                tareas: state.tareas.map(tarea => tarea.id === action.payload.id ? action.payload : tarea),
+                tareasProyecto: state.tareasProyecto.map(tarea => tarea.id === action.payload.id ? action.payload : tarea),
                 errorTarea: false,
                 tareaActual: null
             }

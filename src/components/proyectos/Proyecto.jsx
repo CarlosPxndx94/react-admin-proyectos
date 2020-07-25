@@ -12,12 +12,12 @@ const Proyecto = ({ proyecto }) => {
     const tareasContext = useContext(TareaContext);
     const { handleGetTareas } = tareasContext;
 
-    const { id, nombre } = proyecto;
+    const { _id, nombre } = proyecto;
 
     
     const handleSeleccionarProyecto = () => {
         handleProyectoActual(proyecto);
-        handleGetTareas(id);
+        handleGetTareas(_id);
     }
 
     return (

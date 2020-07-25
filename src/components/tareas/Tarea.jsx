@@ -12,15 +12,15 @@ const Tareas = ({ tarea }) => {
     const {
         handleEliminarTarea,
         handleGetTareas,
-        handleEstadoTarea,
+        handleActualizarTarea,
         handleSetTareaActual
     } = tareasConstext;
 
-    const { id, nombre, estado } = tarea;
+    const { _id, nombre, estado } = tarea;
 
     const clickEliminarTarea = tarea_id => {
-        handleEliminarTarea(tarea_id);
-        handleGetTareas(proyectoActual.id);
+        handleEliminarTarea(tarea_id, proyectoActual._id);
+        handleGetTareas(proyectoActual._id);
     };
 
     const clickEstadoTarea = tarea => {
@@ -29,7 +29,7 @@ const Tareas = ({ tarea }) => {
         } else {
             tarea.estado = true;
         }
-        handleEstadoTarea(tarea);
+        handleActualizarTarea(tarea);
     }
 
     const handleCargarTarea = tarea => {
@@ -37,7 +37,7 @@ const Tareas = ({ tarea }) => {
     }
 
     return (
-        <li className="tarea sombre">
+        <li className="tarea sombra">
             <p>{nombre}</p>
 
             <div className="estado">
@@ -71,7 +71,7 @@ const Tareas = ({ tarea }) => {
                 <button
                     type="button"
                     className="btn btn-secundario"
-                    onClick={() => clickEliminarTarea(id)}
+                    onClick={() => clickEliminarTarea(_id)}
                 >Eliminar</button>
             </div>
         </li>

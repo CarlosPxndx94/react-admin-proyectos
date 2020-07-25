@@ -1,7 +1,7 @@
 import React, { useReducer } from 'react';
 import ProyectoContext from './ProyectoContext';
 import ProyectoReducer from './ProyectoReducer';
-import { v4 } from 'uuid';
+import clienteAxios from '../../config/axios';
 
 import {
     FORMULARIO_PROYECTO,
@@ -9,22 +9,18 @@ import {
     AGREGAR_PROYECTOS,
     ERROR_FORMULARIO,
     PROYECTO_ACTUAL,
-    ELIMINAR_PROYECTO
+    ELIMINAR_PROYECTO,
+    PROYECTO_ERROR
 } from '../../types';
 
 const ProyectoState = props => {
-
-    const proyectos = [
-        { id: 1, nombre: 'Prueba1' },
-        { id: 2, nombre: 'Prueba2' },
-        { id: 3, nombre: 'Prueba3' }
-    ];
 
     const initialState = {
         formulario: false,
         proyectos: [],
         errorFormulario: false,
-        proyectoActual: null
+        proyectoActual: null,
+        mensaje: null,
     }
 
     //Dispatch para ejecutar las acciones
@@ -38,21 +34,48 @@ const ProyectoState = props => {
     }
 
     //obtner los proyectos
-    const handleObtenerProyectos = () => {
-        dispatch({
-            type: GET_PROYECTOS,
-            payload: proyectos
-        })
+    const handleObtenerProyectos = async () => {
+        try {
+            const resultado = await clienteAxios.get('api/proyectos');
+        
+            dispatch({
+                type: GET_PROYECTOS,
+                payload: resultado.data.proyectos
+            });
+        } catch (error) {
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: PROYECTO_ERROR,
+                payload: alerta
+            });
+        }
     }
 
     //agregar nuevo proyecto
-    const handleAgregarProyecto = proyecto => {
-        proyecto.id = v4()
+    const handleAgregarProyecto = async proyecto => {
+        try {
+            const resultado = await clienteAxios.post('api/proyectos', proyecto);
 
-        dispatch({
-            type: AGREGAR_PROYECTOS,
-            payload: proyecto
-        })
+            dispatch({
+                type: AGREGAR_PROYECTOS,
+                payload: resultado.data.proyecto
+            });
+
+        } catch (error) {
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: PROYECTO_ERROR,
+                payload: alerta
+            });
+        }
     }
 
     //mostrar error de formulario
@@ -71,10 +94,25 @@ const ProyectoState = props => {
     }
 
     //Eliminar Proyecto
-    const handleEliminarProyecto = () => {
-        dispatch({
-            type: ELIMINAR_PROYECTO            
-        })
+    const handleEliminarProyecto = async proyecto_id => {
+        try {
+            await clienteAxios.delete(`api/proyectos/${proyecto_id}`);
+
+            dispatch({
+                type: ELIMINAR_PROYECTO
+            });
+
+        } catch (error) {
+            const alerta = {
+                msg: error.response.data.msg,
+                categoria: 'alerta-error'
+            }
+
+            dispatch({
+                type: PROYECTO_ERROR,
+                payload: alerta
+            });
+        }
     }
 
     return (
@@ -84,6 +122,7 @@ const ProyectoState = props => {
                 proyectos: state.proyectos,
                 errorFormulario: state.errorFormulario,
                 proyectoActual: state.proyectoActual,
+                mensaje: state.mensaje,
                 handleMostrarFormulario,
                 handleObtenerProyectos,
                 handleAgregarProyecto,
